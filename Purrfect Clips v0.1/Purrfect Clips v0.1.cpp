@@ -18,6 +18,8 @@ typedef struct EnvItem {
     Rectangle rect;
     int blocking;
     Color color;
+    bool isTeleportArea;
+    Vector2 teleportPosition;
 } EnvItem;
 
 //----------------------------------------------------------------------------------
@@ -39,7 +41,7 @@ int main() {
     SetWindowMinSize(1280, 720);
 
     int gameScreenWidth = 640;
-    int gameScreenHeight = 360;
+    int gameScreenHeight = 320;
     Vector2 characterPosition = { (float)gameScreenWidth / 2, (float)gameScreenHeight / 2 };
 
     // Render texture initialization, used to hold the rendering result so we can easily resize it
@@ -48,20 +50,22 @@ int main() {
 
     // Set framerate and fullscreen
     SetTargetFPS(60);
-    ToggleFullscreen();
+    //ToggleFullscreen();
 
     // Texture loading
     Texture2D boy = LoadTexture("C:\\Users\\GamingPC\\Pictures\\Aseprite\\Character1.png");
     Texture2D map = LoadTexture("C:\\Users\\GamingPC\\Pictures\\Aseprite\\map01.png");
     Texture2D cat = LoadTexture("C:\\Users\\GamingPC\\Pictures\\Aseprite\\kitty03.png");
-    Texture2D painting = LoadTexture("C:\\Users\\GamingPC\\Pictures\\Aseprite\\painting01.png"); //Zajebiœcie jakby tak zrobiæ, ¿e da siê str¹ciæ obrazek.1
+    Texture2D painting = LoadTexture("C:\\Users\\GamingPC\\Pictures\\Aseprite\\painting01.png"); //Zajebiœcie jakby tak zrobiæ, ¿e da siê str¹ciæ obrazek.
 
     Player player = { 0 };
     player.position = Vector2{ 400, 280 };
     player.speed = 0;
     player.canJump = false;
     EnvItem envItems[] = {
-        {{ 64, 448, 1152, 16 }, 1, BLANK }
+        {{ 64, 448, 1152, 16 }, 1, BLANK, false, 0, 0 },
+        {{ 64, 640, 1152, 16 }, 1, BLANK, false, 0, 0 },
+        {{400, 440, 80, 16}, 1, RED, true, 320, 640}
     };
 
     int envItemsLength = sizeof(envItems) / sizeof(envItems[0]);
@@ -122,11 +126,13 @@ int main() {
         // Draw game elements here
         DrawTexture(map, 0, 0, WHITE);
         DrawTexture(painting, 400, 350, WHITE);
-        DrawTexture(boy, player.position.x - 30, player.position.y - 62, WHITE);
+
         for (int i = 0; i < envItemsLength; i++) {
             DrawRectangleRec(envItems[i].rect, envItems[i].color);
         }
         for (int i = 0; i < envItemsLength; i++) DrawRectangleRec(envItems[i].rect, envItems[i].color);
+        DrawTexture(boy, player.position.x - 30, player.position.y - 62, WHITE);
+        DrawCircle(player.position.x, player.position.y, 5, GOLD);
 
         EndMode2D();
         EndTextureMode();
@@ -169,6 +175,15 @@ void UpdatePlayer(Player* player, EnvItem* envItems, int envItemsLength, float d
     bool hitObstacle = false;
     for (int i = 0; i < envItemsLength; i++)
     {
+        if (envItems[i].isTeleportArea &&
+            CheckCollisionPointRec(player->position, envItems[i].rect))
+        {
+            if (IsKeyPressed(KEY_E))  // Jeœli gracz naciœnie 'E'
+            {
+                player->position = envItems[i].teleportPosition;  // Teleportuj gracza
+                break;  // Przerywamy pêtlê, poniewa¿ teleportacja ju¿ siê odby³a
+            }
+        }
         EnvItem* ei = envItems + i;
         Vector2* p = &(player->position);
         if (ei->blocking &&
@@ -195,7 +210,7 @@ void UpdatePlayer(Player* player, EnvItem* envItems, int envItemsLength, float d
 
 void UpdateCameraCenter(Camera2D* camera, Player* player, EnvItem* envItems, int envItemsLength, float delta, int width, int height)
 {
-    camera->offset = Vector2{ width / 2.0f, height / 2.0f };
+    camera->offset = Vector2{ width / 2.0f, height / 2.0f};
     camera->target = player->position;
 }
 
