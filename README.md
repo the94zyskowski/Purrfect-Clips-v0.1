@@ -1,19 +1,20 @@
 #             Purrfect-Clips-v.01           #
 
 
-What is it? <br>
-Purrfect-Clips-v0.1 is a game in early development stage that I am making so I can get better at C++.
+Project Overview: <br>
+Purrfect-Clips-v0.1 is a game currently in the early stages of development, crafted to enhance my proficiency in C++.<br>
 
-Dependancies: <br>
-It uses RayLib and the whole thing is compiled with MSVC since I am using Visual Studio as my IDE.
+Dependencies: <br>
+This project utilizes RayLib and is compiled using MSVC, as Visual Studio is the chosen IDE for development.<br>
 
-RayLib: https://github.com/raysan5/raylib <br>
-Instructions how to easily get RayLib working on Visual Studio: https://www.youtube.com/watch?v=UiZGTIYld1M
+For more information on RayLib and its integration with Visual Studio, refer to the following resources:<br>
 
-TODO: <br>
-- Convert structures to classes.
-- Plan and develop class cherarchy for objects.
-- Choose right virtual resolution and choerent pixelart style.
-- Add an NPC - kitty.
-- Attach resources like png files to the project.
-- Many more...
+RayLib GitHub Repository: RayLib on GitHub<br>
+Setting up RayLib in Visual Studio: YouTube Tutorial<br><br>
+TODO:<br>
+- Convert structures to classes.<br>
+- Plan and develop a class hierarchy for objects.<br>
+- Choose the right virtual resolution and a coherent pixel art style.<br>
+- Add an NPC - kitty.<br>
+- Attach resources, such as PNG files, to the project.<br>
+- Additional features and improvements to be implemented.
