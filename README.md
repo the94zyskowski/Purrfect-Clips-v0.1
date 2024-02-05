@@ -1,8 +1,5 @@
-#############################################
-#                                           #
 #             Purrfect-Clips-v.01           #
-#                                           #
-#############################################
+
 
 What is it? <br>
 Purrfect-Clips-v0.1 is a game in early development stage that I am making so I can get better at C++.
@@ -18,4 +15,5 @@ TODO: <br>
 - Plan and develop class cherarchy for objects.
 - Choose right virtual resolution and choerent pixelart style.
 - Add an NPC - kitty.
+- Attach resources like png files to the project.
 - Many more...
