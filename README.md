@@ -1,7 +1,21 @@
-Here I am, once again
-I'm torn into pieces
-Can't deny it, can't pretend
-Just thought you were the one
-Broken up, deep inside
-But you won't get to see the tears I cry
-Behind these hazel eyes
+#############################################
+#                                           #
+#             Purrfect-Clips-v.01           #
+#                                           #
+#############################################
+
+What is it?
+Purrfect-Clips-v0.1 is a game in early development stage that I am making so I can get better at C++.
+
+Dependancies:
+It uses RayLib and the whole thing is compiled with MSVC since I am using Visual Studio as my IDE.
+
+RayLib: https://github.com/raysan5/raylib
+Instructions how to easily get RayLib working on Visual Studio: https://www.youtube.com/watch?v=UiZGTIYld1M
+
+TODO:
+- Convert structures to classes.
+- Plan and develop class cherarchy for objects.
+- Choose right virtual resolution and choerent pixelart style.
+- Add an NPC - kitty.
+- Many more...
