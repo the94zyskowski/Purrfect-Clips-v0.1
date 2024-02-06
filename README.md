@@ -12,7 +12,7 @@ For more information on RayLib and its integration with Visual Studio, refer to 
 RayLib GitHub Repository: [RayLib on GitHub](https://github.com/raysan5/raylib)<br>
 Setting up RayLib in Visual Studio: [YouTube Tutorial](https://www.youtube.com/watch?v=UiZGTIYld1M)<br><br>
 TODO:<br>
-- Convert structures to classes.<br>
+- ~~Convert structures to classes.~~<br>
 - Plan and develop a class hierarchy for objects.<br>
 - Choose the right virtual resolution and a coherent pixel art style.<br>
 - Add an NPC - kitty.<br>
