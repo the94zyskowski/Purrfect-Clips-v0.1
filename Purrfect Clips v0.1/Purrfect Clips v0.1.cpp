@@ -1,5 +1,6 @@
 #include "raylib.h"
 #include "raymath.h"        // Required for: Vector2Clamp()
+#include <vector>
 
 #define MAX(a, b) ((a)>(b)? (a) : (b))
 #define MIN(a, b) ((a)<(b)? (a) : (b))
@@ -15,31 +16,65 @@ private:
     Color color;
     bool isTeleportArea;
     Vector2 teleportPosition;
+    Texture2D texture;
+    bool isFalling;
 
 public:
+    EnvItem(Rectangle r, int block, Color col, bool teleport = false, Vector2 teleportPos = { 0, 0 }, Texture2D tex = {}, bool fall = false)
+        : rect(r), blocking(block), color(col), isTeleportArea(teleport), teleportPosition(teleportPos), texture(tex), isFalling(fall) {}
+
     // Getters and setters
     Rectangle GetRect() const { return rect; }
+    void SetRect(Rectangle r) { r = rect; }
     int GetBlocking() const { return blocking; }
     Color GetColor() const { return color; }
     bool IsTeleportArea() const { return isTeleportArea; }
     Vector2 GetTeleportPosition() const { return teleportPosition; }
+    void SetTexture(Texture2D tex) { texture = tex;  }
+    bool GetIsFalling() const { return isFalling;  }
+    void SetIsFalling(bool fall) { isFalling = fall; }
 
-    EnvItem(Rectangle r, int block, Color col, bool teleport = false, Vector2 teleportPos = { 0, 0 })
-        : rect(r), blocking(block), color(col), isTeleportArea(teleport), teleportPosition(teleportPos) {}
+    void Draw() const {
+        if (texture.id > 0) { 
+            DrawTexture(texture, rect.x, rect.y, WHITE);
+        }
+        else {
+            DrawRectangleRec(rect, color);
+        }
+    }
+
+    void Update(float deltaTime, float floorY) {
+        if (isFalling) {
+            // Przyk³adowa prêdkoœæ spadania, mo¿na dostosowaæ
+            const float fallingSpeed = 98.0f; // Piksele na sekundê
+
+            // Aktualizacja pozycji obiektu
+            rect.y += fallingSpeed * deltaTime;
+
+            // Sprawdzenie, czy obiekt dotkn¹³ pod³ogi (uwzglêdniaj¹c jego wysokoœæ)
+            if (rect.y + rect.height >= floorY) {
+                rect.y = floorY - rect.height; // Dostosowanie pozycji, aby unikn¹æ "wbijania siê" w pod³ogê
+                isFalling = false;   // Zatrzymanie spadania
+            }
+        }
+    }
 };
 
 class Player {
 private:
-    Vector2 position;
+    Rectangle rect;
     float speed;
     bool canJump;
+    Texture2D texture;
 
 public:
-    Player(Vector2 pos) : position(pos), speed(0), canJump(false) {}
+    Player(Rectangle r, float spd = 0.0f, bool jump = false, Texture2D tex = {})
+        : rect(r), speed(spd), canJump(jump), texture(tex) {}
+
 
     // Getters and setters
-    Vector2 GetPosition() const { return position; }
-    void SetPosition(Vector2 pos) { position = pos; }
+    Vector2 GetPosition() const { return Vector2{rect.x, rect.y}; }
+    void SetPosition(Vector2 v) { rect = {v.x, v.y}; }
 
     float GetSpeed() const { return speed; }
     void SetSpeed(float spd) { speed = spd; }
@@ -47,10 +82,19 @@ public:
     bool CanJump() const { return canJump; }
     void SetCanJump(bool can) { canJump = can; }
 
-    void Update(EnvItem* envItems, int envItemsLength, float delta);
-    void UpdateCameraCenter(Camera2D* camera, EnvItem* envItems, int envItemsLength, float delta, int width, int height);
-    void UpdateCameraCenterSmoothFollow(Camera2D* camera, EnvItem* envItems, int envItemsLength, float delta, int width, int height);
-    void UpdateCameraPlayerBoundsPush(Camera2D* camera, EnvItem* envItems, int envItemsLength, float delta, int width, int height);
+    void Update(const std::vector<EnvItem>& envItems, float delta);
+    void UpdateCameraCenter(Camera2D* camera, int width, int height);
+    void UpdateCameraCenterSmoothFollow(Camera2D* camera, float delta, int width, int height);
+    void UpdateCameraPlayerBoundsPush(Camera2D* camera, int width, int height);
+
+    void Draw() const {
+        if (texture.id > 0) {
+            DrawTexture(texture, rect.x, rect.y, WHITE);
+        }
+        else {
+            DrawRectangleRec({ rect.x, rect.y, rect.width, rect.height }, BLACK);
+        }
+    }
 };
 
 int main() {
@@ -74,20 +118,29 @@ int main() {
     SetTargetFPS(60);
 
     // Texture loading
-    Texture2D boy = LoadTexture("C:\\Users\\GamingPC\\Pictures\\Aseprite\\Character1.png");
+    Texture2D boy_texture = LoadTexture("C:\\Users\\GamingPC\\Pictures\\Aseprite\\Character1.png");
     Texture2D map = LoadTexture("C:\\Users\\GamingPC\\Pictures\\Aseprite\\map01.png");
     Texture2D cat = LoadTexture("C:\\Users\\GamingPC\\Pictures\\Aseprite\\kitty03.png");
-    Texture2D painting = LoadTexture("C:\\Users\\GamingPC\\Pictures\\Aseprite\\painting01.png"); //Zajebiœcie jakby tak zrobiæ, ¿e da siê str¹ciæ obrazek.
+    Texture2D painting_texture = LoadTexture("C:\\Users\\GamingPC\\Pictures\\Aseprite\\painting02.png"); //Zajebiœcie jakby tak zrobiæ, ¿e da siê str¹ciæ obrazek.
 
-    Player player(Vector2{ 400, 280 });
-    EnvItem envItems[] = {
-      EnvItem({ 64, 448, 1152, 16 }, 1, BLANK),
-      EnvItem({ 64, 640, 1152, 16 }, 1, BLANK),
-      EnvItem({320, 440, 80, 16}, 1, RED, true, Vector2{320, 640})
-    };
+    //Object declaration
+    std::vector<EnvItem> envItems;
+
+    EnvItem painting({ 400, 350, 30, 24 }, 1, WHITE, false, { 0, 0 }, painting_texture, true);
+    envItems.push_back(painting);
+
+    EnvItem block1({ 64, 448, 320, 16 }, 1, BLACK);
+    envItems.push_back(block1);
+    EnvItem block2({ 64, 640, 1152, 16 }, 1, BLANK);
+    envItems.push_back(block2);
+    EnvItem block3({ 384, 448, 80, 16 }, 1, RED, true, Vector2{ 320, 640 });
+    envItems.push_back(block3);
 
     int envItemsLength = sizeof(envItems) / sizeof(envItems[0]);
 
+    Player player({ 400, 280, 64, 64}, 0.0f, false, boy_texture);
+
+    //Camera setting up
     Camera2D camera = { 0 };
     camera.target = player.GetPosition();
     camera.offset = Vector2{ gameScreenWidth / 2.0f, gameScreenHeight / 2.0f };
@@ -102,7 +155,7 @@ int main() {
         float deltaTime = GetFrameTime();
 
         // Handle user input and update player
-        player.Update(envItems, envItemsLength, deltaTime);
+        player.Update(envItems, deltaTime);
         if (IsKeyPressed(KEY_C)) {
             cameraOption++;
             if (cameraOption > 2) cameraOption = 0;
@@ -114,12 +167,13 @@ int main() {
             player.SetPosition(Vector2{ 400, 280 });
         }
         if (IsKeyPressed(KEY_ZERO)) ToggleFullscreen();
+        painting.Update(deltaTime, 448);
 
         // Update camera
         switch (cameraOption) {
-            case 0: player.UpdateCameraCenterSmoothFollow(&camera, envItems, envItemsLength, deltaTime, gameScreenWidth, gameScreenHeight); break;
-            case 1: player.UpdateCameraPlayerBoundsPush(&camera, envItems, envItemsLength, deltaTime, gameScreenWidth, gameScreenHeight); break;
-            case 2: player.UpdateCameraCenter(&camera, envItems, envItemsLength, deltaTime, gameScreenWidth, gameScreenHeight); break;
+            case 0: player.UpdateCameraCenterSmoothFollow(&camera, deltaTime, gameScreenWidth, gameScreenHeight); break;
+            case 1: player.UpdateCameraPlayerBoundsPush(&camera, gameScreenWidth, gameScreenHeight); break;
+            case 2: player.UpdateCameraCenter(&camera, gameScreenWidth, gameScreenHeight); break;
         }
         // Compute required framebuffer scaling
         float scale = MIN((float)GetScreenWidth() / gameScreenWidth, (float)GetScreenHeight() / gameScreenHeight);
@@ -133,14 +187,15 @@ int main() {
 
         // Draw game elements here
         DrawTexture(map, 0, 0, WHITE);
-        DrawTexture(painting, 400, 350, WHITE);
 
-        for (int i = 0; i < envItemsLength; i++) {
-            DrawRectangleRec(envItems[i].GetRect(), envItems[i].GetColor());
+        player.Draw();
+
+        //DrawCircleV(Vector2{350,350}, 32, Fade(YELLOW, 0.5f));
+
+        //Draw all EnvItem
+        for (const auto& item : envItems) {
+            item.Draw();
         }
-        for (int i = 0; i < envItemsLength; i++) DrawRectangleRec(envItems[i].GetRect(), envItems[i].GetColor());
-        DrawTexture(boy, player.GetPosition().x - 30, player.GetPosition().y - 62, WHITE);
-        DrawCircle(player.GetPosition().x, player.GetPosition().y, 5, GOLD);
 
         EndMode2D();
         EndTextureMode();
@@ -160,8 +215,8 @@ int main() {
 
     // Releasing resources
     UnloadRenderTexture(target);        // Unload render texture
-    UnloadTexture(boy);
-    UnloadTexture(cat);
+    UnloadTexture(boy_texture);
+    UnloadTexture(painting_texture);
     UnloadTexture(map);
     
 
@@ -169,38 +224,38 @@ int main() {
 
     return 0;
 }
-void Player::Update(EnvItem* envItems, int envItemsLength, float delta) {
+void Player::Update(const std::vector<EnvItem>& envItems, float delta) {
     // Twoja logika aktualizacji, u¿ywaj getterów dla envItems, np. envItems[i].GetRect()
-    if (IsKeyDown(KEY_LEFT)) this->position.x -= PLAYER_HOR_SPD * delta;
-    if (IsKeyDown(KEY_RIGHT)) this->position.x += PLAYER_HOR_SPD * delta;
+    if (IsKeyDown(KEY_LEFT)) this->rect.x -= PLAYER_HOR_SPD * delta;
+    if (IsKeyDown(KEY_RIGHT)) this->rect.x += PLAYER_HOR_SPD * delta;
     if (IsKeyDown(KEY_SPACE) && this->canJump) {
         this->speed = -PLAYER_JUMP_SPD;
         this->canJump = false;
     }
 
     bool hitObstacle = false;
-    for (int i = 0; i < envItemsLength; i++) {
-        if (envItems[i].IsTeleportArea() && CheckCollisionPointRec(this->position, envItems[i].GetRect())) {
+    for (const auto& item : envItems) {
+        if (item.IsTeleportArea() && CheckCollisionPointRec(this->GetPosition(), item.GetRect())) {
             if (IsKeyPressed(KEY_E)) {
-                this->position = envItems[i].GetTeleportPosition();
+                this->GetPosition() = item.GetTeleportPosition();
                 break;
             }
         }
 
-        if (envItems[i].GetBlocking() &&
-            envItems[i].GetRect().x <= this->position.x &&
-            envItems[i].GetRect().x + envItems[i].GetRect().width >= this->position.x &&
-            envItems[i].GetRect().y >= this->position.y &&
-            envItems[i].GetRect().y <= this->position.y + this->speed * delta) {
+        if (item.GetBlocking() &&
+            item.GetRect().x <= this->rect.x &&
+            item.GetRect().x + item.GetRect().width >= this->rect.x &&
+            item.GetRect().y >= this->rect.y &&
+            item.GetRect().y <= this->rect.y + this->speed * delta) {
             hitObstacle = true;
             this->speed = 0.0f;
-            this->position.y = envItems[i].GetRect().y;
+            this->rect.y = item.GetRect().y;
             break;
         }
     }
 
     if (!hitObstacle) {
-        this->position.y += this->speed * delta;
+        this->rect.y += this->speed * delta;
         this->speed += G * delta;
         this->canJump = false;
     }
@@ -209,20 +264,20 @@ void Player::Update(EnvItem* envItems, int envItemsLength, float delta) {
     }
 }
 
-void Player::UpdateCameraCenter(Camera2D* camera, EnvItem* envItems, int envItemsLength, float delta, int width, int height)
+void Player::UpdateCameraCenter(Camera2D* camera, int width, int height)
 {
     camera->offset = Vector2{ width / 2.0f, height / 2.0f };
-    camera->target = this->position;
+    camera->target = this->GetPosition();
 }
 
-void Player::UpdateCameraCenterSmoothFollow(Camera2D* camera, EnvItem* envItems, int envItemsLength, float delta, int width, int height)
+void Player::UpdateCameraCenterSmoothFollow(Camera2D* camera, float delta, int width, int height)
 {
     static float minSpeed = 30;
     static float minEffectLength = 10;
     static float fractionSpeed = 0.8f;
 
     camera->offset = Vector2{ width / 2.0f, height / 2.0f };
-    Vector2 diff = Vector2Subtract(this->position, camera->target);
+    Vector2 diff = Vector2Subtract(this->GetPosition(), camera->target);
     float length = Vector2Length(diff);
 
     if (length > minEffectLength)
@@ -232,7 +287,7 @@ void Player::UpdateCameraCenterSmoothFollow(Camera2D* camera, EnvItem* envItems,
     }
 }
 
-void Player::UpdateCameraPlayerBoundsPush(Camera2D* camera, EnvItem* envItems, int envItemsLength, float delta, int width, int height)
+void Player::UpdateCameraPlayerBoundsPush(Camera2D* camera, int width, int height)
 {
     static Vector2 bbox = { 0.2f, 0.2f };
 
@@ -240,8 +295,8 @@ void Player::UpdateCameraPlayerBoundsPush(Camera2D* camera, EnvItem* envItems, i
     Vector2 bboxWorldMax = GetScreenToWorld2D(Vector2{ (1 + bbox.x) * 0.5f * width, (1 + bbox.y) * 0.5f * height }, *camera);
     camera->offset = Vector2{ (1 - bbox.x) * 0.5f * width, (1 - bbox.y) * 0.5f * height };
 
-    if (this->position.x < bboxWorldMin.x) camera->target.x = this->position.x;
-    if (this->position.y < bboxWorldMin.y) camera->target.y = this->position.y;
-    if (this->position.x > bboxWorldMax.x) camera->target.x = bboxWorldMin.x + (this->position.x - bboxWorldMax.x);
-    if (this->position.y > bboxWorldMax.y) camera->target.y = bboxWorldMin.y + (this->position.y - bboxWorldMax.y);
+    if (this->rect.x < bboxWorldMin.x) camera->target.x = this->rect.x;
+    if (this->rect.y < bboxWorldMin.y) camera->target.y = this->rect.y;
+    if (this->rect.x > bboxWorldMax.x) camera->target.x = bboxWorldMin.x + (this->rect.x - bboxWorldMax.x);
+    if (this->rect.y > bboxWorldMax.y) camera->target.y = bboxWorldMin.y + (this->rect.y - bboxWorldMax.y);
 }
