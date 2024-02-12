@@ -5,7 +5,7 @@
 #define MAX(a, b) ((a)>(b)? (a) : (b))
 #define MIN(a, b) ((a)<(b)? (a) : (b))
 
-constexpr auto G = 1200;
+constexpr auto G = 400;
 constexpr auto PLAYER_JUMP_SPD = 350.0f;
 constexpr auto PLAYER_HOR_SPD = 200.0f;
 
@@ -73,8 +73,13 @@ public:
 
 
     // Getters and setters
+    Rectangle GetRect() { return rect; }
+    void SetRect(Rectangle r) { rect = r; }
     Vector2 GetPosition() const { return Vector2{rect.x, rect.y}; }
-    void SetPosition(Vector2 v) { rect = {v.x, v.y}; }
+    void SetPosition(Vector2 v) {
+        rect.x = v.x;
+        rect.y = v.y;
+    }
 
     float GetSpeed() const { return speed; }
     void SetSpeed(float spd) { speed = spd; }
@@ -118,7 +123,7 @@ int main() {
     SetTargetFPS(60);
 
     // Texture loading
-    Texture2D boy_texture = LoadTexture("C:\\Users\\GamingPC\\Pictures\\Aseprite\\Character1.png");
+    Texture2D boy_texture = LoadTexture("C:\\Users\\GamingPC\\Pictures\\Aseprite\\Character1_border.png");
     Texture2D map = LoadTexture("C:\\Users\\GamingPC\\Pictures\\Aseprite\\map01.png");
     Texture2D cat = LoadTexture("C:\\Users\\GamingPC\\Pictures\\Aseprite\\kitty03.png");
     Texture2D painting_texture = LoadTexture("C:\\Users\\GamingPC\\Pictures\\Aseprite\\painting02.png"); //Zajebiœcie jakby tak zrobiæ, ¿e da siê str¹ciæ obrazek.
@@ -129,16 +134,16 @@ int main() {
     EnvItem painting({ 400, 350, 30, 24 }, 1, WHITE, false, { 0, 0 }, painting_texture, true);
     envItems.push_back(painting);
 
-    EnvItem block1({ 64, 448, 320, 16 }, 1, BLACK);
+    EnvItem block1({ 64, 458, 320, 16 }, 1, BLACK);
     envItems.push_back(block1);
     EnvItem block2({ 64, 640, 1152, 16 }, 1, BLANK);
     envItems.push_back(block2);
-    EnvItem block3({ 384, 448, 80, 16 }, 1, RED, true, Vector2{ 320, 640 });
+    EnvItem block3({ 384, 448, 80, 16 }, 0, RED, true, Vector2{ 320, 448 });
     envItems.push_back(block3);
 
     int envItemsLength = sizeof(envItems) / sizeof(envItems[0]);
 
-    Player player({ 400, 280, 64, 64}, 0.0f, false, boy_texture);
+    Player player({ 400, 280, 26, 63}, 0.0f, false, boy_texture);
 
     //Camera setting up
     Camera2D camera = { 0 };
@@ -152,6 +157,8 @@ int main() {
     while (!WindowShouldClose()) {
         // Update
         //----------------------------------------------------------------------------------
+        TraceLog(LOG_INFO, "Collision detected: %d", CheckCollisionRecs(player.GetRect(), block3.GetRect()));
+
         float deltaTime = GetFrameTime();
 
         // Handle user input and update player
@@ -235,22 +242,25 @@ void Player::Update(const std::vector<EnvItem>& envItems, float delta) {
 
     bool hitObstacle = false;
     for (const auto& item : envItems) {
-        if (item.IsTeleportArea() && CheckCollisionPointRec(this->GetPosition(), item.GetRect())) {
+        if (item.IsTeleportArea() && CheckCollisionRecs(this->GetRect(), item.GetRect())) {
             if (IsKeyPressed(KEY_E)) {
-                this->GetPosition() = item.GetTeleportPosition();
+                Vector2 position = { item.GetTeleportPosition().x, item.GetTeleportPosition().y - this->GetRect().height };
+                this->SetPosition(position);
                 break;
             }
         }
 
-        if (item.GetBlocking() &&
-            item.GetRect().x <= this->rect.x &&
-            item.GetRect().x + item.GetRect().width >= this->rect.x &&
-            item.GetRect().y >= this->rect.y &&
-            item.GetRect().y <= this->rect.y + this->speed * delta) {
-            hitObstacle = true;
-            this->speed = 0.0f;
-            this->rect.y = item.GetRect().y;
-            break;
+        if (item.GetBlocking()) {
+            if (item.GetRect().x < rect.x + rect.width &&
+                item.GetRect().x + item.GetRect().width > rect.x &&
+                item.GetRect().y >= rect.y + rect.height &&
+                item.GetRect().y < rect.y + rect.height + speed * delta) {
+                hitObstacle = true;
+                speed = 0.0f;
+                // Ajustowanie pozycji Y, aby postaæ sta³a na obiekcie EnvItem
+                rect.y = item.GetRect().y - rect.height;
+                break;
+            }
         }
     }
 
