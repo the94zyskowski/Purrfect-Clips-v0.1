@@ -123,10 +123,10 @@ int main() {
     SetTargetFPS(60);
 
     // Texture loading
-    Texture2D boy_texture = LoadTexture("C:\\Users\\GamingPC\\Pictures\\Aseprite\\Character1_border.png");
-    Texture2D map = LoadTexture("C:\\Users\\GamingPC\\Pictures\\Aseprite\\map01.png");
-    Texture2D cat = LoadTexture("C:\\Users\\GamingPC\\Pictures\\Aseprite\\kitty03.png");
-    Texture2D painting_texture = LoadTexture("C:\\Users\\GamingPC\\Pictures\\Aseprite\\painting02.png"); //Zajebiœcie jakby tak zrobiæ, ¿e da siê str¹ciæ obrazek.
+    Texture2D boy_texture = LoadTexture("assets/Character1_border.png");
+    Texture2D map = LoadTexture("assets/map01.png");
+    Texture2D cat = LoadTexture("assets/kitty03.png");
+    Texture2D painting_texture = LoadTexture("assets/painting02.png"); //Zajebiœcie jakby tak zrobiæ, ¿e da siê str¹ciæ obrazek.
 
     //Object declaration
     std::vector<EnvItem> envItems;

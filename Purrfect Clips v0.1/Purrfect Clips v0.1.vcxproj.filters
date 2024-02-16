@@ -13,10 +13,27 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\assets">
+      <UniqueIdentifier>{f5daf0ae-fe36-41cc-af01-a2eb83cb8086}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Purrfect Clips v0.1.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="assets\Character1_border.png">
+      <Filter>Source Files\assets</Filter>
+    </Image>
+    <Image Include="assets\kitty03.png">
+      <Filter>Source Files\assets</Filter>
+    </Image>
+    <Image Include="assets\map01.png">
+      <Filter>Source Files\assets</Filter>
+    </Image>
+    <Image Include="assets\painting02.png">
+      <Filter>Source Files\assets</Filter>
+    </Image>
   </ItemGroup>
 </Project>
