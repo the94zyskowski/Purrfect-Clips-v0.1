@@ -15,6 +15,6 @@ TODO:<br>
 - ~~Convert structures to classes.~~<br>
 - Plan and develop a class hierarchy for objects.<br>
 - Choose the right virtual resolution and a coherent pixel art style.<br>
-- Add an NPC - kitty.<br>
+- ~~Add an NPC - kitty.~~<br>
 - ~~Attach resources, such as PNG files, to the project.~~<br>
 - Additional features and improvements to be implemented.
