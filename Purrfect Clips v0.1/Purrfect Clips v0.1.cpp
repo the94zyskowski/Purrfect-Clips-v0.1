@@ -25,7 +25,7 @@ public:
 
     // Getters and setters
     Rectangle GetRect() const { return rect; }
-    void SetRect(Rectangle r) { r = rect; }
+    void SetRect(Rectangle r) { rect = r; }
     int GetBlocking() const { return blocking; }
     Color GetColor() const { return color; }
     bool IsTeleportArea() const { return isTeleportArea; }
@@ -75,6 +75,7 @@ public:
     // Getters and setters
     Rectangle GetRect() { return rect; }
     void SetRect(Rectangle r) { rect = r; }
+
     Vector2 GetPosition() const { return Vector2{rect.x, rect.y}; }
     void SetPosition(Vector2 v) {
         rect.x = v.x;
@@ -102,6 +103,52 @@ public:
     }
 };
 
+class Kitty {
+private:
+    Rectangle rect;
+    float speed;
+    bool canJump;
+    Texture2D texture;
+    bool isFalling;
+
+public:
+    Kitty(Rectangle r, float spd = 0.0f, bool jump = false, Texture2D tex = {}, bool fall = false)
+        : rect(r), speed(spd), canJump(jump), texture(tex), isFalling(fall) {}
+
+
+    // Getters and setters
+    Rectangle GetRect() { return rect; }
+    void SetRect(Rectangle r) { rect = r; }
+
+    Vector2 GetPosition() const { return Vector2{ rect.x, rect.y }; }
+    void SetPosition(Vector2 v) {
+        rect.x = v.x;
+        rect.y = v.y;
+    }
+
+    float GetSpeed() const { return speed; }
+    void SetSpeed(float spd) { speed = spd; }
+
+    bool CanJump() const { return canJump; }
+    void SetCanJump(bool can) { canJump = can; }
+
+    void SetTexture(Texture2D tex) { texture = tex; }
+
+    bool GetIsFalling() const { return isFalling; }
+    void SetIsFalling(bool fall) { isFalling = fall; }
+
+    void Draw() const {
+        if (texture.id > 0) {
+            DrawTexture(texture, rect.x, rect.y, WHITE);
+        }
+        else {
+            DrawRectangleRec({ rect.x, rect.y, rect.width, rect.height }, BLACK);
+        }
+    }
+
+    void UpdateAI(const std::vector<EnvItem>& envItems, float delta);
+};
+
 int main() {
     const int windowWidth = GetMonitorWidth(0);
     const int windowHeight = GetMonitorHeight(0);
@@ -125,16 +172,16 @@ int main() {
     // Texture loading
     Texture2D boy_texture = LoadTexture("assets/Character1_border.png");
     Texture2D map = LoadTexture("assets/map01.png");
-    Texture2D cat = LoadTexture("assets/kitty03.png");
+    Texture2D cat_texture = LoadTexture("assets/kitty03.png");
     Texture2D painting_texture = LoadTexture("assets/painting02.png"); //Zajebiœcie jakby tak zrobiæ, ¿e da siê str¹ciæ obrazek.
 
     //Object declaration
     std::vector<EnvItem> envItems;
 
-    EnvItem painting({ 400, 350, 30, 24 }, 1, WHITE, false, { 0, 0 }, painting_texture, true);
+    EnvItem painting({ 400, 350, 30, 24 }, 1, WHITE, false, { 0, 0 }, painting_texture, false);
     envItems.push_back(painting);
 
-    EnvItem block1({ 64, 458, 320, 16 }, 1, BLACK);
+    EnvItem block1({ 64, 448, 320, 16 }, 1, BLANK);
     envItems.push_back(block1);
     EnvItem block2({ 64, 640, 1152, 16 }, 1, BLANK);
     envItems.push_back(block2);
@@ -144,6 +191,8 @@ int main() {
     int envItemsLength = sizeof(envItems) / sizeof(envItems[0]);
 
     Player player({ 400, 280, 26, 63}, 0.0f, false, boy_texture);
+
+    Kitty kitty_01({ 300, 280, 32, 32 }, 0.0f, false, cat_texture); //mo¿e dodaæ jakiœ handler, ¿e jak dodajê obiekt to mi go renderuje, dunno
 
     //Camera setting up
     Camera2D camera = { 0 };
@@ -163,6 +212,7 @@ int main() {
 
         // Handle user input and update player
         player.Update(envItems, deltaTime);
+        kitty_01.UpdateAI(envItems, deltaTime);
         if (IsKeyPressed(KEY_C)) {
             cameraOption++;
             if (cameraOption > 2) cameraOption = 0;
@@ -174,7 +224,9 @@ int main() {
             player.SetPosition(Vector2{ 400, 280 });
         }
         if (IsKeyPressed(KEY_ZERO)) ToggleFullscreen();
-        painting.Update(deltaTime, 448);
+        for (auto& item : envItems) {
+            item.Update(deltaTime, 448); // Zak³adaj¹c, ¿e 448 to wysokoœæ pod³ogi
+        }
 
         // Update camera
         switch (cameraOption) {
@@ -196,6 +248,7 @@ int main() {
         DrawTexture(map, 0, 0, WHITE);
 
         player.Draw();
+        kitty_01.Draw();
 
         //DrawCircleV(Vector2{350,350}, 32, Fade(YELLOW, 0.5f));
 
@@ -223,6 +276,7 @@ int main() {
     // Releasing resources
     UnloadRenderTexture(target);        // Unload render texture
     UnloadTexture(boy_texture);
+    UnloadTexture(cat_texture);
     UnloadTexture(painting_texture);
     UnloadTexture(map);
     
@@ -309,4 +363,59 @@ void Player::UpdateCameraPlayerBoundsPush(Camera2D* camera, int width, int heigh
     if (this->rect.y < bboxWorldMin.y) camera->target.y = this->rect.y;
     if (this->rect.x > bboxWorldMax.x) camera->target.x = bboxWorldMin.x + (this->rect.x - bboxWorldMax.x);
     if (this->rect.y > bboxWorldMax.y) camera->target.y = bboxWorldMin.y + (this->rect.y - bboxWorldMax.y);
+}
+
+void Kitty::UpdateAI(const std::vector<EnvItem>& envItems, float delta) {
+    static float timeSinceLastChange = 0;
+    static float changeInterval = 1.0f; // zmiana co 1 sekundê
+    static Vector2 direction = { 0, 0 };
+
+    timeSinceLastChange += delta;
+
+    if (timeSinceLastChange >= changeInterval) {
+        // Losuj nowy kierunek
+        direction.x = (rand() % 3 - 1) * PLAYER_HOR_SPD; // -1, 0 lub 1
+        direction.y = (rand() % 2) * -PLAYER_JUMP_SPD; // 0 lub -1
+
+        timeSinceLastChange = 0; // Resetuj timer
+    }
+
+    rect.x += direction.x * delta;
+    if (direction.y < 0 && canJump) { // Upewnij siê, ¿e kotek mo¿e skoczyæ
+        speed = direction.y;
+        canJump = false;
+    }
+
+    bool hitObstacle = false;
+    for (const auto& item : envItems) {
+        if (item.IsTeleportArea() && CheckCollisionRecs(this->GetRect(), item.GetRect())) {
+            if (IsKeyPressed(KEY_E)) {
+                Vector2 position = { item.GetTeleportPosition().x, item.GetTeleportPosition().y - this->GetRect().height };
+                this->SetPosition(position);
+                break;
+            }
+        }
+
+        if (item.GetBlocking()) {
+            if (item.GetRect().x < rect.x + rect.width &&
+                item.GetRect().x + item.GetRect().width > rect.x &&
+                item.GetRect().y >= rect.y + rect.height &&
+                item.GetRect().y < rect.y + rect.height + speed * delta) {
+                hitObstacle = true;
+                speed = 0.0f;
+                // Ajustowanie pozycji Y, aby postaæ sta³a na obiekcie EnvItem
+                rect.y = item.GetRect().y - rect.height;
+                break;
+            }
+        }
+    }
+
+    if (!hitObstacle) {
+        this->rect.y += this->speed * delta;
+        this->speed += G * delta;
+        this->canJump = false;
+    }
+    else {
+        this->canJump = true;
+    }
 }
