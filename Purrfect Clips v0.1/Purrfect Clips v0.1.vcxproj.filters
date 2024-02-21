@@ -16,10 +16,22 @@
     <Filter Include="Source Files\assets">
       <UniqueIdentifier>{f5daf0ae-fe36-41cc-af01-a2eb83cb8086}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\src">
+      <UniqueIdentifier>{a4f42932-e0a6-48ff-9974-1f64ec6aee23}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Purrfect Clips v0.1.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\EnvItem.cpp">
+      <Filter>Source Files\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Kitty.cpp">
+      <Filter>Source Files\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Player.cpp">
+      <Filter>Source Files\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -35,5 +47,16 @@
     <Image Include="assets\painting02.png">
       <Filter>Source Files\assets</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\EnvItem.h">
+      <Filter>Source Files\src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Kitty.h">
+      <Filter>Source Files\src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Player.h">
+      <Filter>Source Files\src</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
