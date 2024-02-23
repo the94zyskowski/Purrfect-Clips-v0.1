@@ -12,6 +12,7 @@ Color EnvItem::GetColor() const { return color; }
 bool EnvItem::IsTeleportArea() const { return isTeleportArea; }
 Vector2 EnvItem::GetTeleportPosition() const { return teleportPosition; }
 void EnvItem::SetTexture(Texture2D tex) { texture = tex; }
+Texture2D EnvItem::GetTexture() const { return texture; }
 bool EnvItem::GetIsFalling() const { return isFalling; }
 void EnvItem::SetIsFalling(bool fall) { isFalling = fall; }
 

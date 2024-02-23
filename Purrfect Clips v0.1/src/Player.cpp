@@ -10,7 +10,7 @@ Player::Player(Rectangle r, float spd, bool jump, Texture2D tex)
 
 
 // Getters and setters
-Rectangle Player::GetRect() { return rect; }
+Rectangle Player::GetRect() const { return rect; }
 void Player::SetRect(Rectangle r) { rect = r; }
 
 Vector2 Player::GetPosition() const { return Vector2{ rect.x, rect.y }; }

@@ -1,8 +1,8 @@
 #include "Kitty.h"
 
 constexpr auto G = 400;
-constexpr auto PLAYER_JUMP_SPD = 350.0f;
-constexpr auto PLAYER_HOR_SPD = 200.0f;
+constexpr auto KITTY_JUMP_SPD = 350.0f;
+constexpr auto KITTY_HOR_SPD = 200.0f;
 
 //Constructor
 Kitty::Kitty(Rectangle r, float spd, bool jump, Texture2D tex, bool fall)
@@ -48,8 +48,8 @@ void Kitty::UpdateAI(const std::vector<EnvItem>& envItems, float delta) {
 
     if (timeSinceLastChange >= changeInterval) {
         // Losuj nowy kierunek
-        direction.x = (rand() % 3 - 1) * PLAYER_HOR_SPD; // -1, 0 lub 1
-        direction.y = (rand() % 2) * -PLAYER_JUMP_SPD; // 0 lub -1
+        direction.x = (rand() % 3 - 1) * KITTY_HOR_SPD; // -1, 0 lub 1
+        direction.y = (rand() % 2) * -KITTY_JUMP_SPD; // 0 lub -1
 
         timeSinceLastChange = 0; // Resetuj timer
     }
@@ -91,5 +91,29 @@ void Kitty::UpdateAI(const std::vector<EnvItem>& envItems, float delta) {
     }
     else {
         this->canJump = true;
+    }
+}
+
+bool Kitty::IsPlayerClose(const Player& player) const {
+    double distance_limit = 64;
+
+    Rectangle playerRectangle = player.GetRect();
+    double playerX = playerRectangle.x + (0.5 * playerRectangle.width);
+    double playerY = playerRectangle.y + (0.5 * playerRectangle.height);
+
+    double kittyX = rect.x + (0.5 * rect.width);
+    double kittyY = rect.y + (0.5 * rect.height);
+
+    double distance = std::hypot(playerX - kittyX, playerY - kittyY);
+
+    return distance < distance_limit;
+}
+
+void Kitty::PetByPlayer(std::vector<EnvItem>& envItems, const Texture2D& heartTexture) {
+    for (EnvItem& item : envItems) {
+        if (item.GetTexture().id == heartTexture.id) {
+            item.SetRect({ this->rect.x, this->rect.y, 32, 32 });
+            item.Draw();
+        }
     }
 }

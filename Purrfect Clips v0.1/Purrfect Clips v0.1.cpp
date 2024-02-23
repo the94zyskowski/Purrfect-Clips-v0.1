@@ -29,7 +29,8 @@ int main() {
     Texture2D boy_texture = LoadTexture("assets/Character1_border.png");
     Texture2D map = LoadTexture("assets/map01.png");
     Texture2D cat_texture = LoadTexture("assets/kitty03.png");
-    Texture2D painting_texture = LoadTexture("assets/painting02.png"); //Zajebiœcie jakby tak zrobiæ, ¿e da siê str¹ciæ obrazek.
+    Texture2D painting_texture = LoadTexture("assets/painting02.png");
+    Texture2D heart_texture = LoadTexture("assets/heart.png");
 
     //Object declaration
     std::vector<EnvItem> envItems;
@@ -43,6 +44,8 @@ int main() {
     envItems.push_back(block2);
     EnvItem block3({ 384, 448, 80, 16 }, 0, RED, true, Vector2{ 320, 448 });
     envItems.push_back(block3);
+    EnvItem heart({ 0, 0, 32, 32 }, false, BLANK, false, { 0,0 }, heart_texture, false);
+    envItems.push_back(heart);
 
     Player player({ 400, 280, 26, 63 }, 0.0f, false, boy_texture);
 
@@ -80,6 +83,10 @@ int main() {
         if (IsKeyPressed(KEY_ZERO)) ToggleFullscreen();
         for (auto& item : envItems) {
             item.Update(deltaTime, 448); // Zak³adaj¹c, ¿e 448 to wysokoœæ pod³ogi
+        }
+
+        if (kitty_01.IsPlayerClose(player) && IsKeyPressed(KEY_E)) { // KEY_E to przyk³adowy klawisz
+            kitty_01.PetByPlayer(envItems, heart_texture);
         }
 
         // Update camera

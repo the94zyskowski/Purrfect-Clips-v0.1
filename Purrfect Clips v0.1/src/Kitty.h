@@ -3,7 +3,10 @@
 
 #include "raylib.h"
 #include <vector>
+#include <cmath>
 #include "EnvItem.h"
+#include "Player.h"
+#include <algorithm> // For std::find_if
 
 class Kitty {
 private:
@@ -37,4 +40,9 @@ public:
     void Draw() const;
 
     void UpdateAI(const std::vector<EnvItem>& envItems, float delta);
+
+    bool IsPlayerClose(const Player& player) const;
+
+    void PetByPlayer(std::vector<EnvItem>& envItems, const Texture2D& heartTexture);
+
 };

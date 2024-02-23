@@ -16,7 +16,7 @@ public:
 
 
     // Getters and setters
-    Rectangle GetRect();
+    Rectangle GetRect() const;
     void SetRect(Rectangle r);
 
     Vector2 GetPosition() const;

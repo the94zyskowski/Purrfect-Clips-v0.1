@@ -24,6 +24,7 @@ public:
     bool IsTeleportArea() const;
     Vector2 GetTeleportPosition() const;
     void SetTexture(Texture2D tex);
+    Texture2D GetTexture() const;
     bool GetIsFalling() const;
     void SetIsFalling(bool fall);
 
