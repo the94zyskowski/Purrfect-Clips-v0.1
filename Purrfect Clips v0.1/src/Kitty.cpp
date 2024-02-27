@@ -109,11 +109,25 @@ bool Kitty::IsPlayerClose(const Player& player) const {
     return distance < distance_limit;
 }
 
-void Kitty::PetByPlayer(std::vector<EnvItem>& envItems, const Texture2D& heartTexture) {
-    for (EnvItem& item : envItems) {
-        if (item.GetTexture().id == heartTexture.id) {
-            item.SetRect({ this->rect.x, this->rect.y, 32, 32 });
-            item.Draw();
+void Kitty::PetByPlayer(const Player& player, EnvItem& heart, const Texture2D& heartTexture, float deltaTime) {
+    static float timeToShowHeart = 0.0f;
+    static bool showHeart = false;
+
+    if (showHeart) {
+        timeToShowHeart -= deltaTime;
+        if (timeToShowHeart <= 0) {
+            showHeart = false;
         }
     }
+
+    if (showHeart) {
+        heart.SetRect({ this->rect.x, this->rect.y, 32, 32 });
+        heart.Draw();
+    }
+
+    if (this->IsPlayerClose(player) && IsKeyPressed(KEY_E)) {
+        showHeart = true;
+        timeToShowHeart = 1.0f;
+    }
 }
+

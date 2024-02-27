@@ -43,6 +43,6 @@ public:
 
     bool IsPlayerClose(const Player& player) const;
 
-    void PetByPlayer(std::vector<EnvItem>& envItems, const Texture2D& heartTexture);
+    void PetByPlayer(const Player& player, EnvItem& heart, const Texture2D& heartTexture, float deltaTime);
 
 };

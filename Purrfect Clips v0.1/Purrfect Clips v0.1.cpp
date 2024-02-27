@@ -44,8 +44,9 @@ int main() {
     envItems.push_back(block2);
     EnvItem block3({ 384, 448, 80, 16 }, 0, RED, true, Vector2{ 320, 448 });
     envItems.push_back(block3);
-    EnvItem heart({ 0, 0, 32, 32 }, false, BLANK, false, { 0,0 }, heart_texture, false);
-    envItems.push_back(heart);
+
+    EnvItem heart({ 0, 0, 32, 32 }, false, BLANK, false, { 0,0 }, heart_texture, false); //NIE JEST W EnvItem!!! specjalnie, bo nie chce aby rysowany by³ co raz z now¹ klatk¹
+
 
     Player player({ 400, 280, 26, 63 }, 0.0f, false, boy_texture);
 
@@ -85,10 +86,6 @@ int main() {
             item.Update(deltaTime, 448); // Zak³adaj¹c, ¿e 448 to wysokoœæ pod³ogi
         }
 
-        if (kitty_01.IsPlayerClose(player) && IsKeyPressed(KEY_E)) { // KEY_E to przyk³adowy klawisz
-            kitty_01.PetByPlayer(envItems, heart_texture);
-        }
-
         // Update camera
         switch (cameraOption) {
         case 0: player.UpdateCameraCenterSmoothFollow(&camera, deltaTime, gameScreenWidth, gameScreenHeight); break;
@@ -110,8 +107,7 @@ int main() {
 
         player.Draw();
         kitty_01.Draw();
-
-        //DrawCircleV(Vector2{350,350}, 32, Fade(YELLOW, 0.5f));
+        kitty_01.PetByPlayer(player, heart, heart_texture, deltaTime); //It draws stuff
 
         //Draw all EnvItem
         for (const auto& item : envItems) {
