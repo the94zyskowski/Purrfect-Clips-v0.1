@@ -15,9 +15,10 @@ private:
     bool canJump;
     Texture2D texture;
     bool isFalling;
+    int happyness;
 
 public:
-    Kitty(Rectangle r, float spd = 0.0f, bool jump = false, Texture2D tex = {}, bool fall = false);
+    Kitty(Rectangle r, float spd = 0.0f, bool jump = false, Texture2D tex = {}, bool fall = false, int = 0);
 
     // Getters and setters
     Rectangle GetRect();
@@ -36,6 +37,9 @@ public:
 
     bool GetIsFalling() const;
     void SetIsFalling(bool fall);
+
+    int GetHappyness() const;
+    void SetHappyness(int hapi);
 
     void Draw() const;
 

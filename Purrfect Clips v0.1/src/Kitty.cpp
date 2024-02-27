@@ -5,8 +5,8 @@ constexpr auto KITTY_JUMP_SPD = 350.0f;
 constexpr auto KITTY_HOR_SPD = 200.0f;
 
 //Constructor
-Kitty::Kitty(Rectangle r, float spd, bool jump, Texture2D tex, bool fall)
-    : rect(r), speed(spd), canJump(jump), texture(tex), isFalling(fall) {}
+Kitty::Kitty(Rectangle r, float spd, bool jump, Texture2D tex, bool fall, int hapi)
+    : rect(r), speed(spd), canJump(jump), texture(tex), isFalling(fall), happyness(hapi) {}
 
 
 // Getters and setters
@@ -29,6 +29,9 @@ void Kitty::SetTexture(Texture2D tex) { texture = tex; }
 
 bool Kitty::GetIsFalling() const { return isFalling; }
 void Kitty::SetIsFalling(bool fall) { isFalling = fall; }
+
+int Kitty::GetHappyness() const { return happyness; }
+void Kitty::SetHappyness(int hapi) { happyness = hapi; }
 
 void Kitty::Draw() const {
     if (texture.id > 0) {
@@ -128,6 +131,8 @@ void Kitty::PetByPlayer(const Player& player, EnvItem& heart, const Texture2D& h
     if (this->IsPlayerClose(player) && IsKeyPressed(KEY_E)) {
         showHeart = true;
         timeToShowHeart = 1.0f;
+        int previous_happyness = this->GetHappyness();
+        this->SetHappyness(previous_happyness+5);
     }
 }
 

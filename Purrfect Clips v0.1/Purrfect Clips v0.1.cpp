@@ -108,6 +108,7 @@ int main() {
         player.Draw();
         kitty_01.Draw();
         kitty_01.PetByPlayer(player, heart, heart_texture, deltaTime); //It draws stuff
+        DrawText(TextFormat("Kitty happyness: %d", kitty_01.GetHappyness()), 300, 400, 20, RED);
 
         //Draw all EnvItem
         for (const auto& item : envItems) {
