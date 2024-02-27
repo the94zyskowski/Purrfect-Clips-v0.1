@@ -19,4 +19,5 @@ TODO:<br>
 - Choose the right virtual resolution and a coherent pixel art style.<br>
 - ~~Add an NPC - kitty.~~<br>
 - ~~Attach resources, such as PNG files, to the project.~~<br>
+- ~~Basic interaction between Kitty and Player.~~<br>
 - Additional features and improvements to be implemented.
