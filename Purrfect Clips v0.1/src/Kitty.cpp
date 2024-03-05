@@ -124,7 +124,7 @@ void Kitty::PetByPlayer(const Player& player, EnvItem& heart, const Texture2D& h
     }
 
     if (showHeart) {
-        heart.SetRect({ this->rect.x, this->rect.y, 32, 32 });
+        heart.SetRect({ this->rect.x, this->rect.y - 16, 32, 32 });
         heart.Draw();
     }
 

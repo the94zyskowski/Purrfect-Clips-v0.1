@@ -108,7 +108,6 @@ int main() {
         player.Draw();
         kitty_01.Draw();
         kitty_01.PetByPlayer(player, heart, heart_texture, deltaTime); //It draws stuff
-        DrawText(TextFormat("Kitty happyness: %d", kitty_01.GetHappyness()), 300, 400, 20, RED);
 
         //Draw all EnvItem
         for (const auto& item : envItems) {
@@ -126,6 +125,7 @@ int main() {
             (GetScreenWidth() - ((float)gameScreenWidth * scale)) * 0.5f, (GetScreenHeight() - ((float)gameScreenHeight * scale)) * 0.5f,
                 (float)gameScreenWidth * scale, (float)gameScreenHeight * scale
             }, Vector2{ 0, 0 }, 0.0f, WHITE);
+        DrawText(TextFormat("Kitty happyness: %d", kitty_01.GetHappyness()), 64, 1336, 40, BLACK);
         EndDrawing();
     }
 
